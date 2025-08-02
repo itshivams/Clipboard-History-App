@@ -175,35 +175,52 @@ struct A: App {
     }
 }
 
+
 final class D: NSObject, NSApplicationDelegate {
     private var si: NSStatusItem!
     private var po: NSPopover!
+    private var eventMonitor: Any?
     private let m = M()
 
-    func applicationDidFinishLaunching(_ n: Notification) {
+    func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         m.sM()
 
-        si = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let b = si.button {
-            b.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Clipboard History")
-            b.action = #selector(tP(_:))
-            b.target = self
+        si = NSStatusBar.system.statusItem(
+            withLength: NSStatusItem.variableLength
+        )
+
+        if let button = si.button {
+            button.image = NSImage(systemSymbolName: "doc.on.clipboard",
+                                   accessibilityDescription: "Clipboard History")
+            button.action = #selector(togglePopover(_:))
+            button.target = self
         }
 
         po = NSPopover()
         po.behavior = .transient
         po.contentSize = NSSize(width: 320, height: 240)
         po.contentViewController = NSHostingController(rootView: R().environmentObject(m))
+
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            guard let self = self, self.po.isShown else { return }
+            self.po.performClose(nil)
+        }
     }
 
-    @objc private func tP(_ s: Any?) {
-        guard let b = si.button else { return }
+    @objc private func togglePopover(_ sender: Any?) {
+        guard let button = si.button else { return }
         if po.isShown {
-            po.performClose(s)
+            po.performClose(sender)
         } else {
-            po.show(relativeTo: b.bounds, of: b, preferredEdge: .minY)
+            po.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             po.contentViewController?.view.window?.becomeKey()
+        }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
         }
     }
 }
