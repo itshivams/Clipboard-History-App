@@ -32,4 +32,8 @@ Clipboard History is designed with privacy in mind:
 
 Your clipboard, your data.
 
+  <div align="center">
+        <a href="https://github.com/itshivams"><img src="https://itshivam.in/api/github-contributors?repo=itshivams/Clipboard-History-App&theme=neon&layout=compact" height="240" /></a>
+    </div>
+
 ---
